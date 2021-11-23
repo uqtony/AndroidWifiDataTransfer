@@ -2,11 +2,14 @@ package com.uqtony.wifidatatransfer.network;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -108,6 +111,56 @@ public class Utils {
         int r2 = (arr[offset + 2] & 0xFF) << 8;
         int r3 = arr[offset + 3] & 0xFF;
         return r0 + r1 + r2 + r3;
+    }
+
+    public static void changeStateWifiAp(Context context, boolean activated){
+        Method method;
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiConfiguration wifiConfiguration = new WifiConfiguration();
+        wifiConfiguration.SSID = "LED96x48.Host";
+        try {
+            method = wifiManager.getClass().getDeclaredMethod("setWifiApEnabled", WifiConfiguration.class, Boolean.TYPE);
+            method.invoke(wifiManager, wifiConfiguration, activated);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }// end changeStateWifiAp
+
+    public enum WIFI_AP_STATE {
+        WIFI_AP_STATE_DISABLING,
+        WIFI_AP_STATE_DISABLED,
+        WIFI_AP_STATE_ENABLING,
+        WIFI_AP_STATE_ENABLED,
+        WIFI_AP_STATE_FAILED
+    }
+    /*the following method is for getting the wifi hotspot state*/
+
+    public static WIFI_AP_STATE getWifiApState(Context context) {
+        try {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+            Method method = wifiManager.getClass().getMethod("getWifiApState");
+
+            int tmp = ((Integer) method.invoke(wifiManager));
+
+            // Fix for Android 4
+            if (tmp > 10) {
+                tmp = tmp - 10;
+            }
+
+            return WIFI_AP_STATE.class.getEnumConstants()[tmp];
+        } catch (Exception e) {
+            return WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
+        }
+    }
+
+    /**
+     * Return whether Wi-Fi Hotspot is enabled or disabled.
+     *
+     * @return {@code true} if Wi-Fi AP is enabled
+     */
+    public static boolean isWifiApEnabled(Context context) {
+        return getWifiApState(context) == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED;
     }
 }
 

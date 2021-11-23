@@ -2,6 +2,7 @@ package com.uqtony.wifidatatransfer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import com.uqtony.wifidatatransfer.network.DataTransferClient;
 import com.uqtony.wifidatatransfer.network.DataTransferServer;
 import com.uqtony.wifidatatransfer.network.SSDP;
 import com.uqtony.wifidatatransfer.network.UDPBroadcastManager;
+import com.uqtony.wifidatatransfer.network.Utils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,6 +36,17 @@ public class MainActivity extends AppCompatActivity {
     DataTransferServer dataTransferServer;
 
     private void prepareUI() {
+        if (!Utils.isWifiApEnabled(this)) {
+            Utils.changeStateWifiAp(this, true);
+            try {
+                Thread.sleep(3000);
+//                Intent intent = getIntent();
+//                finish();
+//                startActivity(intent);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
         testButton = findViewById(R.id.test_button);
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
