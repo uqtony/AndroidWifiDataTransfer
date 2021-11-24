@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     SSDP ssdp;
     TextView msgTextView, hintTextView;
     Button testButton;
-    ImageView imageView, imageView2;
+    ImageView imageView, imageView2, imageView3, imageView4;
     DataTransferServer dataTransferServer;
 
     private void prepareUI() {
@@ -58,8 +58,14 @@ public class MainActivity extends AppCompatActivity {
         hintTextView = findViewById(R.id.hint_textview);
         imageView = findViewById(R.id.imageView);
         imageView2 = findViewById(R.id.imageView2);
+        imageView3 = findViewById(R.id.imageView3);
+        imageView4 = findViewById(R.id.imageView4);
+
         imageView.setClickable(false);
         imageView2.setClickable(false);
+        imageView3.setClickable(false);
+        imageView4.setClickable(false);
+
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +84,38 @@ public class MainActivity extends AppCompatActivity {
         });
 
         imageView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ssdp.getHostIP() != null){
+                    Thread t = new Thread(){
+                        @Override
+                        public void run() {
+                            snapshotAndSendToServer(v);
+                        }
+                    };
+                    t.start();
+                    return;
+                }
+            }
+        });
+
+        imageView3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ssdp.getHostIP() != null){
+                    Thread t = new Thread(){
+                        @Override
+                        public void run() {
+                            snapshotAndSendToServer(v);
+                        }
+                    };
+                    t.start();
+                    return;
+                }
+            }
+        });
+
+        imageView4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ssdp.getHostIP() != null){
@@ -118,8 +156,16 @@ public class MainActivity extends AppCompatActivity {
                                 //testButton.setText("Send");
                                 imageView.setVisibility(View.VISIBLE);
                                 imageView2.setVisibility(View.VISIBLE);
+                                imageView3.setVisibility(View.VISIBLE);
+                                imageView4.setVisibility(View.VISIBLE);
+
+
                                 imageView.setClickable(true);
                                 imageView2.setClickable(true);
+                                imageView3.setClickable(true);
+                                imageView4.setClickable(true);
+
+
                                 hintTextView.setVisibility(View.VISIBLE);
                                 msgTextView.setText(System.currentTimeMillis()/1000+"##Find device: "+hostIP.toString().trim()+"\n"
                                         +msgTextView.getText());
@@ -136,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = DataTransferClient.imageViewToBitmap(view);
         if (bitmap == null)
             return;
-        Bitmap resizeBitmap = DataTransferClient.getResizedBitmap(bitmap, 192, 108);
+        Bitmap resizeBitmap = DataTransferClient.getResizedBitmap(bitmap, 192, bitmap.getHeight()*192/bitmap.getWidth());
         DataTransferClient dataTransferClient = new DataTransferClient(this);
         dataTransferClient.sendBitmapToServer(ssdp.getHostIP(), 6000, resizeBitmap);
     }
